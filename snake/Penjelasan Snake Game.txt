@@ -1,0 +1,180 @@
+Inisialisasi Pygame dan Pengaturan Tampilan (line 5-9)
+pygame.init()
+width, height = 1500, 1000
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Snake Game")
+clock = pygame.time.Clock()
+
+PENJELASAN : 
+pygame.init():                                      Menginisialisasi semua modul Pygame yang diperlukan untuk menjalankan game.
+width, height = 1500, 1000:                         Menentukan lebar dan tinggi jendela permainan.
+screen = pygame.display.set_mode((width, height)):  Membuat jendela permainan dengan ukuran yang ditentukan.
+pygame.display.set_caption("Snake Game"):           Mengatur judul jendela permainan.
+clock = pygame.time.Clock():                        Membuat objek clock untuk mengontrol kecepatan frame per detik (FPS) permainan.
+
+
+Warna dan Ukuran Objek (line 12-15)
+snake_block = 20
+snake_speed = 10
+snake_color = (0, 255, 0)
+fruit_color = (255, 0, 0)
+
+PENJELASAN :
+snake_block = 20:          Menentukan ukuran setiap blok ular dalam piksel.
+snake_speed = 10:          Menentukan kecepatan ular (jumlah frame per detik).
+snake_color = (0, 255, 0): Menentukan warna ular (hijau) dalam format RGB.
+fruit_color = (255, 0, 0): Menentukan warna buah (merah) dalam format RGB.
+
+Fungsi untuk Menggambar Ular
+def draw_snake(snake_positions):
+    for pos in snake_positions:
+        pygame.draw.rect(screen, snake_color, pygame.Rect(pos[0], pos[1], snake_block, snake_block))
+
+PENJELASAN: 
+def draw_snake(snake_positions):    Mendefinisikan fungsi draw_snake yang menerima daftar posisi ular.
+for pos in snake_positions:         Mengiterasi setiap posisi dalam daftar snake_positions.
+pygame.draw.rect(...):              Menggambar persegi panjang (blok ular) di layar pada posisi yang ditentukan dengan warna yang ditentukan.
+
+Fungsi untuk Menghasilkan Posisi Buah
+def spawn_fruit():
+    return [random.randint(0, (width - snake_block) // snake_block) * snake_block,
+            random.randint(0, (height - snake_block) // snake_block) * snake_block]
+
+PENJELASAN :
+def spawn_fruit():   Mendefinisikan fungsi spawn_fruit yang menghasilkan posisi acak untuk buah.
+
+random.randint(...):    Menghasilkan angka acak dalam rentang yang ditentukan. 
+                        Posisi buah dihitung agar berada dalam batas jendela permainan dan kelipatan dari snake_block.
+
+Fungsi untuk Menampilkan Game Over
+def show_game_over(score):
+    font = pygame.font.Font(None, 74)
+    text = font.render("Game Over!", True, (255, 0, 0))
+    screen.blit(text, (width // 2 - text.get_width() // 2, height // 2 - text.get_height() // 2))
+    
+    font = pygame.font.Font(None, 36)
+    score_text = font.render("Score: " + str(score), True, (255, 255, 255))
+    screen.blit(score_text, (width // 2 - score_text.get_width() // 2, height // 2 + 50))
+    
+    restart_text = font.render("Press R to Restart or Q to Quit", True, (255, 255, 255))
+    screen.blit(restart_text, (width // 2 - restart_text.get_width() // 2, height // 2 + 100))
+    
+    pygame.display.flip()
+
+    # Menunggu input dari pemain
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    waiting = False  # Restart permainan
+                elif event.key == pygame.K_q:
+                    pygame.quit()
+                    exit()
+
+PENJELASAN:
+def show_game_over(score):           Mendefinisikan fungsi untuk menampilkan pesan game over dan skor.
+pygame.font.Font(None, 74):          Membuat objek font untuk menampilkan teks dengan ukuran 74.
+font.render(...):                    Menggambar teks yang akan ditampilkan di layar.
+screen.blit(...):                    Menempatkan teks di posisi tertentu di layar.
+pygame.display.flip():               Memperbarui tampilan layar untuk menampilkan perubahan.
+while waiting::                      Loop untuk menunggu input dari pemain setelah game over.
+pygame.event.get():                  Mengambil semua event yang terjadi (seperti penekanan tombol).
+if event.type == pygame.KEYDOWN:     Memeriksa apakah ada tombol yang ditekan.
+if event.key == pygame.K_r:          Jika tombol R ditekan, permainan akan di-restart.
+if event.key == pygame.K_q:          Jika tombol Q ditekan, permainan akan keluar.
+
+Fungsi Utama
+def main():
+    while True:
+        snake_positions = [[100, 100]]
+        direction = (1, 0)  # Arah awal (kanan)
+        fruit_position = spawn_fruit()
+        score = 0
+
+PENJELASAN: 
+def main():                          Mendefinisikan fungsi utama untuk menjalankan permainan.
+while True:                          Loop utama permainan yang akan terus berjalan hingga permainan dihentikan.
+snake_positions = [[100, 100]]:      Menginisialisasi posisi awal ular.
+** direction = (1, 0):               Menentukan arah awal ular, yaitu ke kanan.
+fruit_position = spawn_fruit():      Memanggil fungsi spawn_fruit untuk mendapatkan posisi awal buah.
+score = 0:                           Menginisialisasi skor permainan.
+
+Loop Permainan
+        while True:
+            screen.fill((0, 0, 0))
+            pygame.draw.rect(screen, fruit_color, pygame.Rect(fruit_position[0], fruit_position[1], snake_block, snake_block))
+
+PENJELASAN: 
+while True::            Loop yang akan terus berjalan selama permainan berlangsung.
+screen.fill((0, 0, 0)): Mengisi layar dengan warna hitam (RGB: 0, 0, 0) untuk membersihkan tampilan sebelumnya.
+pygame.draw.rect(...):  Menggambar buah di posisi yang ditentukan dengan warna yang telah ditentukan.
+
+Menangani Event
+for event in pygame.event.get():
+    if event.type == pygame.QUIT:
+        pygame.quit()
+        return
+    if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_UP and direction != (0, 1):
+            direction = (0, -1)
+        elif event.key == pygame.K_DOWN and direction != (0, -1):
+            direction = (0, 1)
+        elif event.key == pygame.K_LEFT and direction != (1, 0):
+            direction = (-1, 0)
+        elif event.key == pygame.K_RIGHT and direction != (-1, 0):
+            direction = (1, 0)
+
+PENJELASAN:
+for event in pygame.event.get()::                               Mengiterasi semua event yang terjadi.
+if event.type == pygame.QUIT::                                  Memeriksa apakah jendela permainan ditutup. Jika ya, keluar dari permainan.
+if event.type == pygame.KEYDOWN::                               Memeriksa apakah ada tombol yang ditekan.
+if event.key == pygame.K_UP and direction != (0, 1)::           Jika tombol panah atas ditekan dan ular tidak bergerak ke bawah, ubah arah ular ke atas.
+elif event.key == pygame.K_DOWN and direction != (0, -1)::      Jika tombol panah bawah ditekan dan ular tidak bergerak ke atas, ubah arah ular ke bawah.
+elif event.key == pygame.K_LEFT and direction != (1, 0)::       Jika tombol panah kiri ditekan dan ular tidak bergerak ke kanan, ubah arah ular ke kiri.
+elif event.key == pygame.K_RIGHT and direction != (-1, 0)::     Jika tombol panah kanan ditekan dan ular tidak bergerak ke kiri, ubah arah ular ke kanan.
+
+Menggerakkan Ular
+new_head = [snake_positions[0][0] + direction[0] * snake_block, 
+            snake_positions[0][1] + direction[1] * snake_block]
+
+PENJELASAN:
+if (new_head[0] < 0 or new_head[0] >= width or ...):: Memeriksa apakah kepala ular menabrak dinding atau dirinya sendiri.
+ Jika ya, panggil fungsi show_game_over(score) untuk menampilkan pesan game over dan keluar dari loop permainan.
+
+Memperbarui Posisi Ular
+            snake_positions.insert(0, new_head)
+
+            # Cek apakah ular memakan buah
+            if new_head == fruit_position:
+                score += 1
+                fruit_position = spawn_fruit()  # Buat buah baru
+            else:
+                snake_positions.pop()  # Hapus ekor ular jika tidak memakan buah
+
+PENJELASAN :
+snake_positions.insert(0, new_head):     Menambahkan posisi kepala baru ke awal daftar posisi ular.
+if new_head == fruit_position::          Memeriksa apakah kepala ular berada di posisi buah. Jika ya, tambahkan 1 ke skor dan spawn buah baru.
+else: snake_positions.pop():             Jika tidak memakan buah, hapus ekor ular.
+
+Menggambar Ular dan Menampilkan Skor
+            draw_snake(snake_positions)
+
+            # Menampilkan skor ```python
+            font = pygame.font.Font(None, 36)
+            score_text = font.render("Score: " + str(score), True, (255, 255, 255))
+            screen.blit(score_text, (10, 10))
+
+            pygame.display.flip()
+            clock.tick(snake_speed)
+
+PENJELASAN:
+draw_snake(snake_positions):            Memanggil fungsi draw_snake untuk menggambar ular di layar berdasarkan posisi yang telah diperbarui.
+font = pygame.font.Font(None, 36):      Membuat objek font untuk menampilkan skor dengan ukuran 36.
+score_text = font.render("Score: " + str(score), True, (255, 255, 255)): Menggambar teks skor yang akan ditampilkan di layar.
+screen.blit(score_text, (10, 10)):      Menempatkan teks skor di posisi (10, 10) di layar.
+pygame.display.flip():                   Memperbarui tampilan layar untuk menampilkan semua perubahan yang telah dilakukan.
+clock.tick(snake_speed):                 Mengatur kecepatan permainan berdasarkan nilai snake_speed, sehingga permainan berjalan dengan kecepatan yang konsisten.
