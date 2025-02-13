@@ -10,7 +10,7 @@ clock = pygame.time.Clock()
 
 # Warna dan ukuran objek
 snake_block = 20
-snake_speed = 10
+snake_speed = 15
 snake_color = (0, 255, 0)
 fruit_color = (255, 0, 0)
 
